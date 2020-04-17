@@ -1,0 +1,58 @@
+---
+# BuildConfig
+apiVersion: v1
+kind: Template
+metadata:
+  name: myapp-dc-template
+  annotations:
+    description: BuildConfig template for ${APP_NAME} app on OCP
+    tags: example,template
+  labels:
+    app: ${APP_NAME}
+objects:
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: ${APP_BC_NAME}
+      labels:
+        app: ${APP_NAME}
+    spec:
+      source:
+        type: Binary
+        # binary: {}
+      strategy:
+        # type: Docker
+        dockerStrategy:
+          dockerfilePath: "Dockerfile"
+          noCache: true
+          forcePull: true
+          # # Enable `from` if you want to override base image in the Dockerfile with something different
+          # from:  
+          #   kind: ImageStreamTag
+          #   # namespace: ${NAMESPACE}
+          #   name: ${BASE_IS_NAME}:${BASE_IST_NAME}
+      output:
+        to:
+          kind: ImageStreamTag
+          name: ${APP_IS_NAME}:${APP_IST_NAME}
+      successfulBuildsHistoryLimit: 5
+      failedBuildsHistoryLimit: 5
+parameters:
+  - name: APP_NAME
+    description: Name of the application.
+    required: true
+  - name: APP_BC_NAME
+    description: Name for the app buildconfig.
+    required: true
+  - name: BASE_IS_NAME
+    description: Base imagestrem name.
+    # required: true
+  - name: BASE_IST_NAME
+    description: Tag for the app base image.
+    # required: true
+  - name: APP_IS_NAME
+    description: Name of the app imagestream.
+    required: true
+  - name: APP_IST_NAME
+    description: Tag for the app image.
+    required: true
