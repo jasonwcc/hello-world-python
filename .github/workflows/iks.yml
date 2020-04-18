@@ -19,9 +19,9 @@ env:
   IBM_CLOUD_REGION: us-south
   ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
   REGISTRY_HOSTNAME: us.icr.io
-  IMAGE: IKS-test
-  IKS_CLUSTER: example-IKS-clusterName-or-ID
-  DEPLOYMENT_NAME: IKS-test
+  IMAGE: hello-python
+  IKS_CLUSTER: bq1sm2gd0sjtps7ajoa0
+  DEPLOYMENT_NAME: hello-python
 
 jobs:
   setup-build-publish-deploy:
