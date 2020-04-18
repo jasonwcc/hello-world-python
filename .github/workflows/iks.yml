@@ -70,5 +70,7 @@ jobs:
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
         kubectl run $DEPLOYMENT_NAME --image=$REGISTRY_HOSTNAME/$ICR_NAMESPACE/$IMAGE:$GITHUB_SHA
+        sleep 10
         kubectl expose deployment/$DEPLOYMENT_NAME --type=NodePort --port=$PORT --name=$IMAGE --target-port=$PORT
+        sleep 10
         kubectl describe services $DEPLOYMENT_NAME
