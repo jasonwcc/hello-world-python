@@ -8,9 +8,7 @@
 
 name: Build and Deploy to ROKS
 
-on:
-  release:
-    types: [created]
+on: [push]
 
 # Environment variables available to all jobs and steps in this workflow
 env:
@@ -33,11 +31,6 @@ jobs:
           version: 'latest'
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
           parameters: '{"apitoken": "${{ secrets.API_TOKEN }}", "acceptUntrustedCerts": "true"}'
-          cmd: |
-            "version"
-            "project hello-python"
-            "new-build --strategy docker --binary --name hello-python"
-            "start-build hello-python --from-dir . --follow"
-            "new-app -i hello-python"
-            "expose dc/hello-python"
-            "get routes"
+          run: |
+            oc version
+            oc project hello-python || oc new-project hello-python
