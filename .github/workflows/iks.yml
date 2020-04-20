@@ -15,8 +15,6 @@ on:
 # Environment variables available to all jobs and steps in this workflow
 env:
   GITHUB_SHA: ${{ github.sha }}
-  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
-  IBM_CLOUD_REGION: us-south
   ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
   REGISTRY_HOSTNAME: us.icr.io
   IMAGE: hello-python
@@ -25,30 +23,30 @@ env:
   PORT: 5001
 
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  checkout:
+    name: Checkout
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout
       uses: actions/checkout@v2
 
+  ibmcloud:
+    name: ibmcloud
+    runs-on: ubuntu-latest
+    steps:
     # Setup IBM Cloud CLI
     - name: Install IBM Cloud CLI
-      run: |
-        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
-        ibmcloud --version
-        ibmcloud config --check-version=false
-        ibmcloud plugin install -f kubernetes-service
-        ibmcloud plugin install -f container-registry
+      uses: ibm/ibmcloud-action@0.0.2
+      with:
+        APIKEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+        CLOUD_REGION: us-south
 
-    # Authenticate with IBM Cloud CLI
-    - name: Authenticate with IBM Cloud CLI
-      run: |
-        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
-        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
-        ibmcloud cr login
-
+  build:
+    name: Build
+    needs: checkout
+    runs-on: ubuntu-latest
+    steps:
     # Build the Docker image
     # docker build -f Dockerfile -t us.icr.io/stevemar2/hello-python:latest .
     - name: Build with Docker
@@ -57,6 +55,11 @@ jobs:
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" .
 
+  publish:
+    name: Publish
+    needs: checkout
+    runs-on: ubuntu-latest
+    steps:
     # Push the image to IBM Container Registry
     # docker push us.icr.io/stevemar2/hello-python:latest
     - name: Push the image to ICR
@@ -65,6 +68,12 @@ jobs:
 
     # Deploy the Docker image to the IKS cluster
     # TODO: Add support to run kubectl apply -f - on all top level .yaml files...
+  deploy:
+    name: Deploy
+    needs: ibmcloud
+    runs-on: ubuntu-latest
+    steps:
+
     - name: Deploy to IKS
       run: |
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
