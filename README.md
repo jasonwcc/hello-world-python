@@ -2,7 +2,7 @@
 
 Simple HelloWorld app using Python and Flask framework.
 
-**Setup and run locally** (on localhost)  
+**Setup and run locally** (on localhost)
 System Requirements: [Git](http://www.git-scm.com), [Python 3.8.0](https://www.python.org/downloads/)
 
 ```bash
@@ -35,9 +35,9 @@ $ curl http://localhost:5001/debug
 **Setup and run using Containers** (Docker)
 
 ```bash
-$ docker build -f Dockerfile -t tmp/hello-python:latest .
+$ docker build -f Dockerfile -t hello-python:latest .
 
-$ docker run -it -p 5001:5001 --name hello_python tmp/hello-python:latest
+$ docker run -it -p 5001:5001 --name hello_python hello-python:latest
 
 # Docker Docs: https://docs.docker.com/
 # Docker Reference: https://docs.docker.com/reference/
