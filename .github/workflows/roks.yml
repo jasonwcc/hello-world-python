@@ -35,9 +35,9 @@ jobs:
           parameters: '{"apitoken": "${{ secrets.API_TOKEN }}", "acceptUntrustedCerts": "true"}'
           cmd: |
             "version"
-            "new-project ${{ PROJECT }}"
-            "new-build --strategy docker --binary --name ${{ IMAGE }}"
-            "start-build ${{ IMAGE }} --from-dir . --follow"
-            "new-app -i ${{ IMAGE }}"
-            "expose svc/${{ IMAGE }}"
+            "new-project hello-python"
+            "new-build --strategy docker --binary --name hello-python"
+            "start-build hello-python --from-dir . --follow"
+            "new-app -i hello-python"
+            "expose svc/hello-python"
             "get routes"
