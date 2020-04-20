@@ -1,0 +1,43 @@
+# This workflow will build a docker container, publish it to IBM Container Registry, and deploy it to IKS when a release is created
+#
+# To configure this workflow:
+#
+# 1. Ensure that your repository contains the necessary configuration for your IBM Kubernetes Service cluster, including deployment.yml, service.yml, etc.
+# 2. Set up secrets in your workspace: ICR_NAMESPACE with the name of the project, IBM_CLOUD_API_KEY with an API key.
+# 3. Change the values for the IBM_CLOUD_REGION, REGISTRY_HOSTNAME, IMAGE, IKS_CLUSTER and DEPLOYMENT_NAME environment variables (below).
+
+name: Build and Deploy to ROKS
+
+on:
+  release:
+    types: [created]
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  GITHUB_SHA: ${{ github.sha }}
+  PROJECT: dev
+  IMAGE: hello-python
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: OpenShift Action
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: 'latest'
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+          parameters: '{"apitoken": "${{ secrets.API_TOKEN }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'version'
+            'new-project $PROJECT'
+            'new-build --strategy docker --binary --name $IMAGE'
+            'start-build $IMAGE --from-dir . --follow'
+            'new-app -i $IMAGE'
+            'expose svc/$IMAGE'
+            'get routes'
